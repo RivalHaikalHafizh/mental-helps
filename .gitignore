@@ -6,10 +6,12 @@ __pycache__/
 # C extensions
 *.so
 
+#environetment
+Mental/
+
 # Distribution / packaging
 .Python
 build/
-MentalEnv/
 develop-eggs/
 dist/
 downloads/
