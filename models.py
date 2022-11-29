@@ -18,11 +18,10 @@ class Message(BaseModel):
 
 
 class MentalHelps(BaseModel):
-    Temprature=CharField()
-    Odor=CharField()
-    Fat =CharField()
-    Turbidity=CharField()
-    merge=CharField()
+    Temprature=IntegerField()
+    Odor=IntegerField()
+    Fat =IntegerField()
+    Turbidity=IntegerField()
     Grade=CharField()
 
 

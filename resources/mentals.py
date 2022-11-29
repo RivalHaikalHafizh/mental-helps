@@ -1,6 +1,9 @@
 from flask import jsonify, Blueprint, abort,make_response
 from flask_restful import Resource, Api, reqparse, fields, marshal, marshal_with
 import json
+from joblib import dump, load  # For serialization. Pre-installed by sklearn.
+from sklearn.preprocessing import StandardScaler
+import numpy as np
 import pandas as pd
 import joblib
 import models
@@ -12,7 +15,6 @@ mental_fields = {
     'Odor': fields.Integer,
     'Fat ': fields.Integer,
     'Turbidity': fields.Integer,
-    'merge': fields.Integer,
     'Grade': fields.String
 }
 
@@ -48,13 +50,6 @@ class UserBase(Resource):
             location=['form', 'args'],
 
         )
-        self.reqparse.add_argument(
-            'merge',
-            required=True,
-            help='merge wajib ada',
-            location=['form', 'args'],
-
-        )
         super().__init__()
 
 
@@ -65,16 +60,16 @@ class Mental(UserBase):
         Odor = args.get('Odor')
         Fat  = args.get('Fat ')
         Turbidity = args.get('Turbidity')
-        merge = args.get('merge')
-        pipe = joblib.load('../mental-helps/model.pkl')
+        pipe = joblib.load('../mental-helps/my_model.pkl')
         d = {
-                'Temprature': float(Temprature),
-                'Odor': float(Odor),
-                'Fat ': float(Fat),
-                'Turbidity': float(Turbidity),
-                'merge': float(merge)
+                'Temprature': int(Temprature),
+                'Odor': int(Odor),
+                'Fat ': int(Fat),
+                'Turbidity': int(Turbidity),
             }
         pr = pd.DataFrame(d, index=[0])
+        same_standard_scaler = load('../mental-helps/my-standard-scaler.pkl') 
+        pr[:] = same_standard_scaler.transform(pr.loc[:])
         pred_cols = list(pr.columns.values)[:]
         # # apply the whole pipeline to data
         pred = pd.Series(pipe.predict(pr[pred_cols]))
@@ -84,7 +79,6 @@ class Mental(UserBase):
             Odor=Odor,
             Fat=Fat,
             Turbidity=Turbidity,
-            merge=merge,
             Grade=Grade
         )
         return jsonify({'feature anda':d,'Grade hasil prediksi':Grade})
