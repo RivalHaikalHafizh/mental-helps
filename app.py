@@ -5,9 +5,12 @@ from sklearn.ensemble import RandomForestClassifier
 from flask import Flask, request,jsonify
 from flask_restful import Resource, Api
 from flask_cors import CORS
+import gevent.pywsgi
 import joblib
 from flask_jwt_extended import (JWTManager,jwt_required,
                                 create_access_token,get_jwt_identity)
+
+
 import models
 from resources.messages import messages_api
 from resources.users import users_api
@@ -15,7 +18,7 @@ from resources.mentals import mentals_api
 
 
 
-app = Flask(__name__)
+app = Flask(__name__,static_url_path='/static')
 CORS(app, support_credentials=True)
 #ACCESS_TOKEN_JWT
 app.config['SECRET_KEY'] ='scfsdsdfsdfsferwer'
@@ -72,5 +75,10 @@ def logout():
 
 
 if __name__ == '__main__':
-    models.initialize()
-    app.run(debug=True)
+    models.initialize()   
+    # Untuk mode pengembangan
+    # app.run(debug=True)
+
+    # Gunakan wsgi server untuk deployment (production)
+    http_server = gevent.pywsgi.WSGIServer(("127.0.0.1", 80), app)
+    http_server.serve_forever()
