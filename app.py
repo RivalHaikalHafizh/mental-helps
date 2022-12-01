@@ -1,3 +1,4 @@
+#import library
 import pandas as pd
 import sklearn
 import numpy as np
@@ -10,15 +11,16 @@ import joblib
 from flask_jwt_extended import (JWTManager,jwt_required,
                                 create_access_token,get_jwt_identity)
 
-
+#import module
 import models
 from resources.messages import messages_api
 from resources.users import users_api
 from resources.mentals import mentals_api
 
 
-
-app = Flask(__name__,static_url_path='/static')
+#inisiasi object flask
+app = Flask(__name__)
+#inisiasi object flask_cors
 CORS(app, support_credentials=True)
 #ACCESS_TOKEN_JWT
 app.config['SECRET_KEY'] ='scfsdsdfsdfsferwer'
@@ -30,23 +32,6 @@ app.register_blueprint(messages_api,url_prefix='/api/v1')
 app.register_blueprint(users_api,url_prefix='/api/v1')
 app.register_blueprint(mentals_api,url_prefix='/api/v1')
 
-@app.route('/api/v1/clasifier',methods=["POST"])
-def classifier():
-    pipe = joblib.load('model.pkl')
-    # New data to predict
-    d = {
-        'Temprature': -0.877314,
-        'Odor': 1.2741591,
-        'Fat ': 0.729325,
-        'Turbidity': 1.434086,
-        'merge': 0.063744
-    }
-    pr = pd.DataFrame(d, index=[0])
-    pred_cols = list(pr.columns.values)[:]
-    # apply the whole pipeline to data
-    pred = pd.Series(pipe.predict(pr[pred_cols]))
-    print(pr)
-    return jsonify(pred[0])
 
 #logout
 blacklist = set()
