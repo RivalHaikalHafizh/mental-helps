@@ -5,11 +5,11 @@ import numpy as np
 from sklearn.ensemble import RandomForestClassifier
 from flask import Flask, request,jsonify
 from flask_restful import Resource, Api
-from flask_cors import CORS
+from flask_cors import CORS,cross_origin
 import gevent.pywsgi
-from flask_jwt_extended import (JWTManager,jwt_required,
-                                create_access_token,get_jwt_identity)
-
+from flask_jwt_extended import (JWTManager,jwt_required,get_jwt,get_jwt_identity,
+                                create_access_token,set_access_cookies,unset_jwt_cookies)
+from datetime import datetime,timedelta,timezone
 #import module
 import models
 from resources.messages import messages_api
@@ -20,29 +20,22 @@ from resources.mentals import mentals_api
 #inisiasi object flask
 app = Flask(__name__)
 #inisiasi object flask_cors
-CORS(app, support_credentials=True)
+# cors_config = {
+#     'origins':'*',
+#     'methods':['GET','POST'],
+#     'allow-headers':'*'
+# }
+# CORS(app,resources={r"/api/v1/*":cors_config})
+CORS(app,allow_headers=['Content-Type'])
 #ACCESS_TOKEN_JWT
-app.config['SECRET_KEY'] ='scfsdsdfsdfsferwer'
-app.config['JWT_BLACKLIST_ENABLED'] =True
-app.config['JWT_BLACKLIST_TOKEN_CHECKS'] =['access,refresh']
+app.config["JWT_SECRET_KEY"] = "super-secret"  # Change this in your code!
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
+app.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(days=30)
 jwt=JWTManager(app)
 
 app.register_blueprint(messages_api,url_prefix='/api/v1')
 app.register_blueprint(users_api,url_prefix='/api/v1')
 app.register_blueprint(mentals_api,url_prefix='/api/v1')
-
-
-#logout
-blacklist = set()
-
-@jwt.token_in_blocklist_loader
-def check_if_token_in_blacklist(decrypted_token):
-    jti=decrypted_token['jti']
-    return jti in blacklist
-
-@app.route('/api/v1/user/logout')
-def logout():
-    return {'msg':'berhasil logout'}
 
 
 if __name__ == '__main__':

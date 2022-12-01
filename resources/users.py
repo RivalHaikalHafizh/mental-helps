@@ -3,8 +3,9 @@ from flask_restful import Resource, Api, reqparse, fields, marshal, marshal_with
 from hashlib import md5
 import json
 import models
-from flask_jwt_extended import (JWTManager, jwt_required,
-                                create_access_token, get_jwt_identity)
+from flask_jwt_extended import (JWTManager,jwt_required,get_jwt,get_jwt_identity,
+                                create_access_token,set_access_cookies,unset_jwt_cookies,create_refresh_token)
+from datetime import datetime,timedelta,timezone
 
 user_fields = {
     'username': fields.String,
@@ -31,7 +32,7 @@ class UserBase(Resource):
         super().__init__()
 
 
-class UserList(UserBase):
+class UserReg(UserBase):
     def post(self):
         args = self.reqparse.parse_args()
         username = args.get('username')
@@ -44,15 +45,16 @@ class UserList(UserBase):
                 username=username,
                 password=md5(password.encode('utf-8')).hexdigest()
             )
-            access_token = create_access_token(identity=username)
-            user.access_token = access_token
-            return marshal(user, user_fields)
+            additional_claims = {"aud": "some_audience", "foo": "bar"}
+            access_token = create_access_token(username, additional_claims=additional_claims)
+            return jsonify(access_token=access_token)
         else:
             raise Exception('username sudah terdaftar')
-
-    @jwt_required(optional=False)
+ 
+    @jwt_required()
     def get(self):
-        return {'message': 'data yangterproteksi'}
+        claims = get_jwt()
+        return jsonify(foo=claims["foo"])
 
 
 class User(UserBase):
@@ -68,12 +70,22 @@ class User(UserBase):
             return {'message': 'user or passsword is wrong'}
         else:
             username = args.get('username')
-            access_token = create_access_token(identity=username)
-            return make_response(jsonify({'message': 'selamat login','token':access_token}),200)
+            # access_token = create_access_token(identity=username)
+            # return make_response(jsonify({'message': 'selamat login','token':access_token}),200)
+            access_token = create_access_token(identity=username, fresh=True)
+            refresh_token = create_refresh_token(identity=username)
+            info='access token bertahan 1 jam dan refresh token bertahan 30 hari'
+            return jsonify({'info':info,'access_token':access_token,'refresh_token':refresh_token})
+    
+    @jwt_required(refresh=True)
+    def put(self):
+        identity = get_jwt_identity()
+        access_token = create_access_token(identity, fresh=timedelta(minutes=5))
+        return jsonify({'info':'access token bertambah 5 menit','access_token':access_token})
 
 
 users_api = Blueprint('users', __name__)
 api = Api(users_api)
 
-api.add_resource(UserList, '/user/register', endpoint='user/registr')
+api.add_resource(UserReg, '/user/register', endpoint='user/registr')
 api.add_resource(User, '/user/signin', endpoint='user/signin')

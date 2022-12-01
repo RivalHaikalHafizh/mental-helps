@@ -1,6 +1,7 @@
 from flask import jsonify, Blueprint, abort,make_response
 from flask_restful import Resource, Api, reqparse, fields, marshal, marshal_with
 import json
+from flask_cors import CORS,cross_origin
 from sklearn.preprocessing import StandardScaler
 import numpy as np
 import pandas as pd
@@ -24,28 +25,28 @@ class UserBase(Resource):
             'Temprature',
             required=True,
             help='Temprature wajib ada',
-            location=['form', 'args'],
+            location=['form','args','files','json'],
 
         )
         self.reqparse.add_argument(
             'Odor',
             required=True,
             help='Odor wajib ada',
-            location=['form', 'args'],
+            location=['form','args','files','json'],
 
         )
         self.reqparse.add_argument(
             'Fat ',
             required=True,
             help='Fat wajib ada',
-            location=['form', 'args'],
+            location=['form','args','files','json'],
 
         )
         self.reqparse.add_argument(
             'Turbidity',
             required=True,
             help='Turbidity wajib ada',
-            location=['form', 'args'],
+            location=['form','args','files','json'],
 
         )
         super().__init__()

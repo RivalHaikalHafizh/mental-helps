@@ -25,7 +25,7 @@ class BaseMessage(Resource):
             'content',
             required = True,
             help ='konten wajib ada',
-            location =['form','args'],
+            location =['form','args','json'],
 
         )
         super().__init__()
