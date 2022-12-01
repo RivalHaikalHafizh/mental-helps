@@ -77,5 +77,5 @@ class User(UserBase):
 users_api = Blueprint('users', __name__)
 api = Api(users_api)
 
-api.add_resource(UserList, '/user/register', endpoint='user/registr',methods=["GET","POST"])
+api.add_resource(UserList, '/user/register', endpoint='user/registr')
 api.add_resource(User, '/user/signin', endpoint='user/signin')

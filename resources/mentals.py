@@ -1,14 +1,13 @@
 from flask import jsonify, Blueprint, abort,make_response
 from flask_restful import Resource, Api, reqparse, fields, marshal, marshal_with
 import json
-from joblib import dump, load  # For serialization. Pre-installed by sklearn.
 from sklearn.preprocessing import StandardScaler
 import numpy as np
 import pandas as pd
-import joblib
-import models
 from flask_jwt_extended import (JWTManager, jwt_required,
                                 create_access_token, get_jwt_identity)
+from joblib import dump, load  # For serialization. Pre-installed by sklearn.
+import models
 
 mental_fields = {
     'Temprature': fields.Integer,
@@ -82,6 +81,11 @@ class Mental(UserBase):
             Grade=Grade
         )
         return jsonify({'feature anda':d,'Grade hasil prediksi':Grade})
+
+    @jwt_required(optional=False)
+    def get(self):
+        mentals=[marshal(mental,mental_fields)for mental in models.MentalHelps.select()]
+        return {'mentalsdata':mentals}      
 
 
 
