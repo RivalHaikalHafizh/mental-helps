@@ -4,8 +4,7 @@ import json
 from sklearn.preprocessing import StandardScaler
 import numpy as np
 import pandas as pd
-from flask_jwt_extended import (JWTManager, jwt_required,
-                                create_access_token, get_jwt_identity)
+from flask_jwt_extended import JWTManager, jwt_required,create_access_token, get_jwt_identity
 from joblib import dump, load  # For serialization. Pre-installed by sklearn.
 import models
 
@@ -59,7 +58,7 @@ class Mental(UserBase):
         Odor = args.get('Odor')
         Fat  = args.get('Fat ')
         Turbidity = args.get('Turbidity')
-        pipe = joblib.load('../mental-helps/my_model.pkl')
+        pipe = load('../mental-helps/my_model.pkl')
         d = {
                 'Temprature': int(Temprature),
                 'Odor': int(Odor),
@@ -80,9 +79,9 @@ class Mental(UserBase):
             Turbidity=Turbidity,
             Grade=Grade
         )
-        return jsonify({'feature anda':d,'Grade hasil prediksi':Grade})
+        return make_response(jsonify({'feature anda':d,'Grade hasil prediksi':Grade}),200)
 
-    @jwt_required(optional=False)
+    @jwt_required()
     def get(self):
         mentals=[marshal(mental,mental_fields)for mental in models.MentalHelps.select()]
         return {'mentalsdata':mentals}      

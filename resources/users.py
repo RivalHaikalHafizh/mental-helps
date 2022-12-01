@@ -11,7 +11,6 @@ user_fields = {
     'access_token': fields.String
 }
 
-
 class UserBase(Resource):
     def __init__(self):
         self.reqparse = reqparse.RequestParser()
@@ -66,12 +65,11 @@ class User(UserBase):
             username = models.User.get((models.User.username == username) & (
                 models.User.password == hashpassword))
         except models.User.DoesNotExist:
-            # daftarun usernya
             return {'message': 'user or passsword is wrong'}
         else:
             username = args.get('username')
             access_token = create_access_token(identity=username)
-            return {'message': 'selamat login','token':access_token}
+            return make_response(jsonify({'message': 'selamat login','token':access_token}),200)
 
 
 users_api = Blueprint('users', __name__)

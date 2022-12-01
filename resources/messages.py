@@ -1,4 +1,4 @@
-from flask import jsonify, Blueprint,abort
+from flask import jsonify, Blueprint,abort,make_response
 from flask_restful import Resource,Api,reqparse,fields,marshal,marshal_with
 
 import models
@@ -13,9 +13,9 @@ def get_or_abort(id):
     try:
         msg=models.Message.get_by_id(id)
     except models.Message.DoesNotExist:
-        abort(404)
+        abort(404,description="Massage not found")
     else:
-        return msg
+        return msg,200
 
 
 class BaseMessage(Resource):
@@ -32,39 +32,28 @@ class BaseMessage(Resource):
 
 class MessageList(BaseMessage):
     def get(self):
-        #ambil data dari database
-        # messages={}
-        # query=models.Message.select()
         messages=[marshal(message,message_fields)for message in models.Message.select()]
-        # for row in query:
-        #     messages[row.id]={'content':row.content,
-        #                         'published_at':row.published_at}
-        return {'messages':messages}
-        # return jsonify({'messages':messages})
+        return make_response(jsonify({'messages':messages}),200)
 
     def post(self):
         args = self.reqparse.parse_args()
         message=models.Message.create(**args)
-        # return jsonify({'success':True})
-        return marshal(message,message_fields)
+        return marshal(message,message_fields),200
 
 
 class Message(BaseMessage):
     @marshal_with(message_fields)
     def get(self,id):
-        # message=models.Message.get_by_id(id)
         return get_or_abort(id)
-        # return jsonify({'message':message.content})
 
     def put(self,id):
         args = self.reqparse.parse_args()
-        # msg= get_or_abort(id)
         message=models.Message.update(content=args.get('content')).where(models.Message.id == id).execute()
-        return {'messgae':'berhasil mengupdate'}
+        return make_response(jsonify({'messgae':'berhasil mengupdate'}),200)
 
     def delete(self,id):
         message=models.Message.delete().where(models.Message.id == id).execute()
-        return {'messgae':'berhasil menghapus'}
+        return make_response(jsonify({'messgae':'berhasil menghapus'}),200)
     
 
 messages_api= Blueprint('messages',__name__)
