@@ -19,23 +19,16 @@ from resources.mentals import mentals_api
 
 #inisiasi object flask
 app = Flask(__name__)
-#inisiasi object flask_cors
-# cors_config = {
-#     'origins':'*',
-#     'methods':['GET','POST'],
-#     'allow-headers':'*'
-# }
-# CORS(app,resources={r"/api/v1/*":cors_config})
 CORS(app,allow_headers=['Content-Type'])
 #ACCESS_TOKEN_JWT
-app.config["JWT_SECRET_KEY"] = "super-secret"  # Change this in your code!
+app.config["JWT_SECRET_KEY"] = "apimentalhelps"  
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
 app.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(days=30)
 jwt=JWTManager(app)
 
-app.register_blueprint(messages_api,url_prefix='/api/v1')
-app.register_blueprint(users_api,url_prefix='/api/v1')
-app.register_blueprint(mentals_api,url_prefix='/api/v1')
+app.register_blueprint(messages_api,url_prefix='/v1')
+app.register_blueprint(users_api,url_prefix='/v1')
+app.register_blueprint(mentals_api,url_prefix='/v1')
 
 
 if __name__ == '__main__':

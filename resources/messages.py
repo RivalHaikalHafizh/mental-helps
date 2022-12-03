@@ -4,7 +4,6 @@ from flask_restful import Resource,Api,reqparse,fields,marshal,marshal_with
 import models
 
 message_fields={
-    'id':fields.Integer,
     'content':fields.String,
     'published_at':fields.String
 }
@@ -30,7 +29,7 @@ class BaseMessage(Resource):
         )
         super().__init__()
 
-class MessageList(BaseMessage):
+class Messages(BaseMessage):
     def get(self):
         messages=[marshal(message,message_fields)for message in models.Message.select()]
         return make_response(jsonify({'messages':messages}),200)
@@ -59,5 +58,5 @@ class Message(BaseMessage):
 messages_api= Blueprint('messages',__name__)
 api =Api(messages_api) 
 
-api.add_resource(MessageList, '/messages',endpoint='messages')
+api.add_resource(Messages,'/messages',endpoint='messages')
 api.add_resource(Message, '/message/<int:id>',endpoint='message')

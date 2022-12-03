@@ -32,7 +32,7 @@ class UserBase(Resource):
         super().__init__()
 
 
-class UserReg(UserBase):
+class users(UserBase):
     def post(self):
         args = self.reqparse.parse_args()
         username = args.get('username')
@@ -47,14 +47,10 @@ class UserReg(UserBase):
             )
             additional_claims = {"aud": "some_audience", "foo": "bar"}
             access_token = create_access_token(username, additional_claims=additional_claims)
-            return jsonify(access_token=access_token)
+            info='anda sudah berhasil melakukan registrasi silahkan login untuk mendapatkan token'
+            return jsonify(message=info)
         else:
             raise Exception('username sudah terdaftar')
- 
-    @jwt_required()
-    def get(self):
-        claims = get_jwt()
-        return jsonify(foo=claims["foo"])
 
 
 class User(UserBase):
@@ -67,25 +63,24 @@ class User(UserBase):
             username = models.User.get((models.User.username == username) & (
                 models.User.password == hashpassword))
         except models.User.DoesNotExist:
-            return {'message': 'user or passsword is wrong'}
+            return make_response(jsonify({'message': 'user or passsword is wrong'}),400)
         else:
             username = args.get('username')
-            # access_token = create_access_token(identity=username)
-            # return make_response(jsonify({'message': 'selamat login','token':access_token}),200)
-            access_token = create_access_token(identity=username, fresh=True)
+            access_token = create_access_token(identity=username,fresh=True)
             refresh_token = create_refresh_token(identity=username)
             info='access token bertahan 1 jam dan refresh token bertahan 30 hari'
-            return jsonify({'info':info,'access_token':access_token,'refresh_token':refresh_token})
+            return jsonify({'message':info,'access_token':access_token,'refresh_token':refresh_token})
     
     @jwt_required(refresh=True)
     def put(self):
         identity = get_jwt_identity()
         access_token = create_access_token(identity, fresh=timedelta(minutes=5))
-        return jsonify({'info':'access token bertambah 5 menit','access_token':access_token})
+        return make_response(jsonify({'message':'access token bertambah 5 menit','access_token':access_token}),200)
+
 
 
 users_api = Blueprint('users', __name__)
 api = Api(users_api)
 
-api.add_resource(UserReg, '/user/register', endpoint='user/registr')
-api.add_resource(User, '/user/signin', endpoint='user/signin')
+api.add_resource(users, '/user/register', endpoint='register')
+api.add_resource(User, '/user/signin', endpoint='signin')

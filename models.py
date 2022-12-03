@@ -18,11 +18,23 @@ class Message(BaseModel):
 
 
 class MentalHelps(BaseModel):
-    Temprature=IntegerField()
-    Odor=IntegerField()
-    Fat =IntegerField()
-    Turbidity=IntegerField()
-    Grade=CharField()
+    Age=CharField()
+    Educational_level=CharField()
+    Screening_time=CharField()
+    lack_of_practical_exposure=CharField()
+    Irregular_eating_habits=CharField()
+    Exercise=CharField()
+    depressiveness=CharField()
+    unnecessary_misunderstandings=CharField()
+    online_courses=CharField()
+    procrastination=IntegerField()
+    social_media_hours=IntegerField()
+    hobby_hours=IntegerField()
+    increased_sleep_hours=IntegerField()
+    online_difficulty_level=IntegerField()
+    focus_level=IntegerField()
+    health_problems=CharField()
+
 
 
 def initialize():
