@@ -157,7 +157,7 @@ class Mental(UserBase):
         increased_sleep_hours= args.get('increased_sleep_hours')
         online_difficulty_level = args.get('online_difficulty_level')
         focus_level = args.get('focus_level')
-        pipe = load('../mental-helps/model.pkl')
+        pipe = load('../mental-helps/model.joblib')
         d = {
                 'Age':Age,
                 'Educational_level': Educational_level,
@@ -179,13 +179,12 @@ class Mental(UserBase):
         #encoder
         categorical_features=['Age', 'Educational_level', 'Screening_time', 'lack_of_practical_exposure', 'Irregular_eating_habits', 'Exercise', 'depressiveness','unnecessary_misunderstandings','online_courses']
         label_encoders = {}
-        encoding = load('../mental-helps/encoding.pkl') 
-        categorical = pr[categorical_features]
-        for isi in categorical:
-            label_encoders[isi] = encoding
-            pr[isi] = label_encoders[isi].fit_transform(pr[isi])
+        enc = load('../mental-helps/encoder.joblib') 
+        for col in pr[categorical_features]:
+            pr.replace(enc[col], inplace=True)
+        #encode=pr.to_dict('records')
         #scaler
-        same_standard_scaler = load('../mental-helps/scaler.pkl') 
+        same_standard_scaler = load('../mental-helps/scaler.joblib') 
         pr[:] = same_standard_scaler.transform(pr.loc[:])
         pred_cols = list(pr.columns.values)[:]
         # # apply the whole pipeline to data
