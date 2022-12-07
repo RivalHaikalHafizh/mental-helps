@@ -211,7 +211,6 @@ class Mental(UserBase):
         return make_response(jsonify({'feature anda':d,'health problem hasil prediksi':health_problem}),200)
 
 class MentalInfo(UserBase):   
-    @jwt_required()
     def get(self):
         mentals=[marshal(mental,mental_fields)for mental in models.MentalHelps.select()]
         return make_response(jsonify({'mentalsdata':mentals}),200)
