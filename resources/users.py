@@ -12,70 +12,97 @@ user_fields = {
     'access_token': fields.String
 }
 
-class UserBase(Resource):
+class UserSignin(Resource):
     def __init__(self):
         self.reqparse = reqparse.RequestParser()
         self.reqparse.add_argument(
-            'username',
+            'email',
             required=True,
-            help='username wajib ada',
-            location=['form', 'args'],
+            help='email wajib ada',
+            location=['json', 'args'],
 
         )
         self.reqparse.add_argument(
             'password',
             required=True,
             help='password wajib ada',
-            location=['form', 'args'],
+            location=['json', 'args'],
 
         )
         super().__init__()
 
+class UserRegister(Resource):
+    def __init__(self):
+        self.reqparse = reqparse.RequestParser()
+        self.reqparse.add_argument(
+            'email',
+            required=True,
+            help='email wajib ada',
+            location=['json', 'args'],
 
-class users(UserBase):
+        )
+        self.reqparse.add_argument(
+            'username',
+            required=True,
+            help='username wajib ada',
+            location=['json', 'args'],
+
+        )
+        self.reqparse.add_argument(
+            'password',
+            required=True,
+            help='password wajib ada',
+            location=['json', 'args'],
+
+        )
+        super().__init__()
+
+class users(UserRegister):
     def post(self):
         args = self.reqparse.parse_args()
+        email = args.get('email')
         username = args.get('username')
         password = args.get('password')
         try:
-            models.User.select().where(models.User.username == username).get()
+            models.User.select().where(models.User.email == email).get()
         except models.User.DoesNotExist:
             # daftarun usernya
             user = models.User.create(
+                email=email,
                 username=username,
                 password=md5(password.encode('utf-8')).hexdigest()
             )
             additional_claims = {"aud": "some_audience", "foo": "bar"}
-            access_token = create_access_token(username, additional_claims=additional_claims)
-            info='anda sudah berhasil melakukan registrasi silahkan login untuk mendapatkan token'
-            return jsonify(message=info)
+            access_token = create_access_token(email, additional_claims=additional_claims)
+            info='anda sudah berhasil melakukan registrasi silahkan login untuk mendapatkan akses'
+            return make_response(jsonify({'message':info,'result':True}),200)
         else:
-            raise Exception('username sudah terdaftar')
+            raise make_response(jsonify({'message':'email sudah terdaftar','result':False}),400)
 
 
-class User(UserBase):
+class User(UserSignin):
     def post(self):
         args = self.reqparse.parse_args()
-        username = args.get('username')
+        email = args.get('email')
         password = args.get('password')
         try:
             hashpassword = md5(password.encode('utf-8')).hexdigest()
-            username = models.User.get((models.User.username == username) & (
+            email = models.User.get((models.User.email == email) & (
                 models.User.password == hashpassword))
         except models.User.DoesNotExist:
-            return make_response(jsonify({'message': 'user or passsword is wrong'}),400)
+            return make_response(jsonify({'message': 'user or passsword is wrong','result':False}),400)
         else:
-            username = args.get('username')
-            access_token = create_access_token(identity=username,fresh=True)
-            refresh_token = create_refresh_token(identity=username)
+            email = args.get('email')
+            access_token = create_access_token(identity=email,fresh=True)
+            refresh_token = create_refresh_token(identity=email)
             info='access token bertahan 1 jam dan refresh token bertahan 30 hari'
-            return jsonify({'message':info,'access_token':access_token,'refresh_token':refresh_token})
+            return make_response(jsonify({'message':info,'result':True,'access_token':access_token,'refresh_token':refresh_token}),200)
     
     @jwt_required(refresh=True)
     def put(self):
         identity = get_jwt_identity()
         access_token = create_access_token(identity, fresh=timedelta(minutes=5))
-        return make_response(jsonify({'message':'access token bertambah 5 menit','access_token':access_token}),200)
+        return make_response(jsonify({'message':'access token bertambah 5 menit','result':True,'access_token':access_token}),200)
 
 
 
