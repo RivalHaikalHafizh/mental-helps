@@ -1,6 +1,7 @@
 from flask import jsonify, Blueprint, abort,make_response
 from flask_restful import Resource, Api, reqparse, fields, marshal, marshal_with
 import json
+from operator import itemgetter
 from flask_cors import CORS,cross_origin
 import numpy as np
 import pandas as pd
@@ -111,6 +112,38 @@ class UserBase(Resource):
             location=['json'],
 
         )
+    def descr(d):
+        hasil=''
+        if(d=='Yes'):
+            hasil='Kesehatan mental kamu sedang tidak baik mungkin kamu berada di bawah banyak tekanan sekarang,merasa lebih takut dari yang bisa kamu tangani. Masalah yang kamu hadapi membuat kamu kurang nyaman dan kurang bisa melakukan aktivitas sehari-hari dan Mungkin kamu juga merasa tidak berdaya dalam menyelesaikan permasalahan yang kamu hadapi.'
+        else:
+            hasil='Saat ini kamu boleh dibilang tidak ada masalah kesehatan mental. Kamu merasa nyaman dengan hidupmu. Kamu juga bisa berkegiatan dengan baik dan produktif. Selain itu, kamu juga cenderung memiliki kontrol penuh terhadap hidupmu.'
+        return hasil
+
+    def solusi(d):
+        solusi={}
+        eat,exe,dep,ove,inc = itemgetter("Irregular_eating_habits", 'Exercise', 'depressiveness',"overthinking","increased_sleep_hours")(d)
+        if(eat=='Yes'or eat=='May be'):
+            solusi['eat']='Melewatkan sarapan berdampak buruk bagi kesehatan mental kamu. Sarapan teratur membantu mengisi ulang tubuh dan otak kamu. Setelah tidur panjang, makanan menjadi metabolisme kamu untuk hari itu Melewatkan sarapan menyebabkan kelelahan dan menimbulkan perasaan berbeda,begitu juga makan siang dan malam harus tepat waktu dan memenuhi nutrisi harian kamu'
+        else:
+            solusi['eat']="Kamu hebat! Pola makanmu cukup bagus. Itu sangat mempengaruhi kesehatan mental kamu lebih sehat lagi."
+        if(exe=='Never' or exe=='Rarely'):
+            solusi['exe']=' Kamu masih kurang aktif secara fisik (jarang berolahraga dengan rutin dan lebih memilih untuk  tidak banyak bergerak) sehingga kamu perlu mengubahnya.'
+        else:
+            solusi['exe']='Kamu hebat! Kamu sudah aktif secara fisik (rajin berolahraga dan lebih memilih untuk banyak bergerak).'
+        if(dep=='Never' or dep=='Rarely'):
+            solusi['dep']='Saat ini kamu tidak memiliki, atau sangat sedikit gejala depresi. Memiliki suasana hati yang rendah atau perasaan gelisah adalah pengalaman umum bagi kita semua. Mungkin bermanfaat jika Anda dapat menjangkau teman dan keluarga terpercaya. Namun, kami tetap menyarankan Anda untuk cukup memperhatikan kesehatan mental Anda. Jangan ragu untuk meminta profesional setiap kali Anda merasa gelombang mood luar biasa.Kamu merasa nyaman dengan hidupmu.'
+        else:
+            solusi['dep']='Dilihat dari gejala yang kamu alami, kamu harus segera mencari bantuan. Kami sangat menyarankan kamu untuk berbicara dengan seseorang yang mungkin dapat membantu. Hubungi teman dan keluargamu atau jika kamu pikir mereka akan memahamimu, konsultasi saja dengan dokter umum. Dia dapat membantumu menjelajahi pilihanmu, memahami masalahmu lebih baik, atau hanya mendengarkan keluh kesahmu.'
+        if(ove=='Yes' or ove=='May be'):
+            solusi['ove']='kamu memikirkan pikiran negatif berulang kali. Kamu juga tidak bisa mengendalikannya. Kamu  terlalu fokus pada peristiwa dan perasaan negatif yang kamu alami. Hal ini terkadang membuat aktivitas sehari-hari, seperti berkonsentrasi, menjadi sulit. '
+        else:
+            solusi['ove']='Kamu dapat mengendalikan pikiran-pikiran negatifmu dengan baik. Kamu tidak terlalu fokus pada kejadian dan perasaan negatif yang pernah kamu alami.'
+        if(inc=='4'or inc=='3'):
+            solusi['inc']='Kamu hebat! Kualitas tidurmu sudah baik karena kamu mudah untuk bisa terlelap dan tertidur kembali jika kamu terbangun di malam atau dini hari. Oleh karena itu, lanjutkan pola tidurmu yang sudah sehat ini.'
+        else:
+            solusi['inc']='Kualitas tidurmu masih perlu ditingkatkan karena kamu masih sulit untuk bisa terlelap bahkan sulit untuk tertidur kembali jika kamu terbangun di malam atau dini hari.'
+        return solusi
         super().__init__()
 
 
@@ -163,22 +196,20 @@ class Mental(UserBase):
             Age=Age,
             Educational_level=Educational_level,
             Screening_time=Screening_time,
-            # lack_of_practical_exposure=lack_of_practical_exposure,
             Irregular_eating_habits=Irregular_eating_habits,
             Exercise=Exercise,
             depressiveness=depressiveness,
             unnecessary_misunderstandings=unnecessary_misunderstandings,
             online_courses=online_courses,
-            # procrastination=procrastination,
             overthinking=overthinking,
             social_media_hours=social_media_hours,
             hobby_hours=hobby_hours,
             increased_sleep_hours=increased_sleep_hours,
-            # online_difficulty_level=online_difficulty_level,
-            # focus_level=focus_level,
             health_problems=health_problem
         )
-        return make_response(jsonify({'featureanda':d,'hasilprediksi':health_problem}),200)
+        solusi=UserBase.solusi(d)
+        desc =UserBase.descr(health_problem)
+        return make_response(jsonify({'hasilprediksi':health_problem,'solusi':solusi,'deskripsi':desc}),200)
 
 class MentalInfo(UserBase):   
     def get(self):

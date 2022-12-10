@@ -75,9 +75,9 @@ class users(UserRegister):
             additional_claims = {"aud": "some_audience", "foo": "bar"}
             access_token = create_access_token(email, additional_claims=additional_claims)
             info='anda sudah berhasil melakukan registrasi silahkan login untuk mendapatkan akses'
-            return make_response(jsonify({'message':info,'result':True}),200)
+            return make_response(jsonify({'pesan':info,'result':True}),200)
         else:
-            raise make_response(jsonify({'message':'email sudah terdaftar','result':False}),400)
+            return make_response(jsonify({'pesan':'email sudah terdaftar','result':False,'access_token':''}),400)
 
 
 class User(UserSignin):
@@ -90,19 +90,19 @@ class User(UserSignin):
             email = models.User.get((models.User.email == email) & (
                 models.User.password == hashpassword))
         except models.User.DoesNotExist:
-            return make_response(jsonify({'message': 'user or passsword is wrong','result':False}),400)
+            return make_response(jsonify({'pesan': 'user or passsword is wrong','result':False}),400)
         else:
             email = args.get('email')
             access_token = create_access_token(identity=email,fresh=True)
             refresh_token = create_refresh_token(identity=email)
-            info='access token bertahan 1 jam dan refresh token bertahan 30 hari'
-            return make_response(jsonify({'message':info,'result':True,'access_token':access_token,'refresh_token':refresh_token}),200)
+            info='access token bertahan 1 jam'
+            return make_response(jsonify({'pesan':info,'result':True,'access_token':access_token,'refresh_token':refresh_token}),200)
     
     @jwt_required(refresh=True)
     def put(self):
         identity = get_jwt_identity()
         access_token = create_access_token(identity, fresh=timedelta(minutes=5))
-        return make_response(jsonify({'message':'access token bertambah 5 menit','result':True,'access_token':access_token}),200)
+        return make_response(jsonify({'pesan':'access token bertambah 5 menit','result':True,'access_token':access_token}),200)
 
 
 
