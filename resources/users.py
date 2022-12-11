@@ -90,7 +90,7 @@ class User(UserSignin):
             email = models.User.get((models.User.email == email) & (
                 models.User.password == hashpassword))
         except models.User.DoesNotExist:
-            return make_response(jsonify({'pesan': 'user or passsword is wrong','result':False}),400)
+            return make_response(jsonify({'pesan': 'email atau password salah','result':False}),400)
         else:
             email = args.get('email')
             access_token = create_access_token(identity=email,fresh=True)

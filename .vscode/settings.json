@@ -1,3 +1,5 @@
 {
     "python.defaultInterpreterPath": "D:/sib/mental-helps/MentalEnv/Scripts/python.exe",
+    "appService.defaultWebAppToDeploy": "/subscriptions/ffed939d-7987-4617-836b-7e8a3760d848/AppServices/subscriptions/ffed939d-7987-4617-836b-7e8a3760d848/resourceGroups/mentalhelps-group/providers/Microsoft.Web/sites/apimentalhelps",
+    "appService.deploySubpath": ".",
 }

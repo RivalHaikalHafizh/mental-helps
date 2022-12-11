@@ -24,12 +24,10 @@ CORS(app,allow_headers=['Content-Type'])
 app.config["JWT_SECRET_KEY"] = "apimentalhelps"  
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
 app.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(days=30)
-jwt=JWTManager(app)
-
 app.register_blueprint(messages_api,url_prefix='/v1')
 app.register_blueprint(users_api,url_prefix='/v1')
 app.register_blueprint(mentals_api,url_prefix='/v1')
-
+jwt=JWTManager(app)
 
 if __name__ == '__main__':
     models.initialize()   
