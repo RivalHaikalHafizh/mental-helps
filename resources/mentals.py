@@ -18,7 +18,7 @@ mental_fields = {
     'depressiveness':fields.String,
     'unnecessary_misunderstandings':fields.String,
     'online_courses':fields.String,
-    'overthinking':fields.Integer,
+    'overthinking':fields.String,
     'social_media_hours':fields.Integer,
     'hobby_hours':fields.Integer,
     'increased_sleep_hours':fields.Integer,
@@ -162,7 +162,9 @@ class Mental(UserBase):
         social_media_hours = args.get('social_media_hours')
         hobby_hours = args.get('hobby_hours')
         increased_sleep_hours= args.get('increased_sleep_hours')
-        pipe = load('../mental-helps/model.joblib')
+        pipe = load('../model.joblib')
+        # pipe = load('../mental-helps/model.pkl')
+        print("PIPE: ", pipe)
         d = {
                 'Age':Age,
                 'Educational_level': Educational_level,
@@ -181,18 +183,18 @@ class Mental(UserBase):
         #encoder
         categorical_features=['Age', 'Educational_level', 'Screening_time', 'Irregular_eating_habits', 'Exercise', 'depressiveness','overthinking','unnecessary_misunderstandings','online_courses']
         label_encoders = {}
-        enc = load('../mental-helps/encoder.joblib') 
+        enc = load('../encoder.joblib') 
         df_deploy_encoded = enc.transform(pr[categorical_features])
         pr[categorical_features]=df_deploy_encoded
         #scaler
-        same_standard_scaler = load('../mental-helps/scaler.joblib') 
+        same_standard_scaler = load('../scaler.joblib') 
         numerical_features = ['social_media_hours', 'hobby_hours','increased_sleep_hours']
         pr[numerical_features] = same_standard_scaler.transform(pr.loc[:, numerical_features])
         pred_cols = list(pr.columns.values)[:]
         # # apply the whole pipeline to data
         pred = pd.Series(pipe.predict(pr[pred_cols]))
         health_problem =pred[0]
-        mentals = models.MentalHelps.create(
+        models.MentalHelps.create(
             Age=Age,
             Educational_level=Educational_level,
             Screening_time=Screening_time,
@@ -213,10 +215,9 @@ class Mental(UserBase):
 
 class MentalInfo(UserBase):   
     def get(self):
-        mentals=[marshal(mental,mental_fields)for mental in models.MentalHelps.select()]
+        mentals=[marshal(mental,mental_fields) for mental in models.MentalHelps.select()]
+        print("MENTALS: ", mentals)
         return make_response(jsonify({'mentalsdata':mentals}),200)
-
-
 
 
 mentals_api = Blueprint('mentals', __name__)
