@@ -1,10 +1,9 @@
 Flask
 flask-cors
-scikit-learn
 pandas
-numpy
 flask_restful
 peewee
 category_encoders
 flask-jwt-extended
 gevent
+tensorflow
