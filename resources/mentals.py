@@ -290,7 +290,7 @@ class Mental(UserBase):
             df_data.loc[:, numerical_features]
         )
         df_data_sample = df_data.drop("health_problems", axis=1)
-        # # apply the whole pipeline to data
+        # apply the whole pipeline to data
 
         if model is None:
             return jsonify("Model Belum Siap")
