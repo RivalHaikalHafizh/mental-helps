@@ -226,7 +226,7 @@ class Mental(UserBase):
     def post(self):
         model = None
         label = ["Yes", "No"]
-        model = tf.keras.models.load_model(r"../mental-helps/model.h5")
+        model = tf.keras.models.load_model(r"./model.h5")
         args = self.reqparse.parse_args()
         Age = args.get("Age")
         Educational_level = args.get("Educational_level")
@@ -260,7 +260,7 @@ class Mental(UserBase):
         }
         df_data = pd.DataFrame(dict_data, index=[0])
         # encoder
-        file = open(f"../mental-helps/enc.pkl", "rb")
+        file = open(f"./enc.pkl", "rb")
         enc = pickle.load(file)
         file.close()
         categorical_features = [
@@ -278,7 +278,7 @@ class Mental(UserBase):
         df_deploy_encoded = enc.transform(df_data[categorical_features])
         df_data[categorical_features] = df_deploy_encoded
         # scaler
-        file = open(f"../mental-helps/scaler.pkl", "rb")
+        file = open(f"./scaler.pkl", "rb")
         scaler = pickle.load(file)
         file.close()
         numerical_features = [
